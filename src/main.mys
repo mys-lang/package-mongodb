@@ -1,0 +1,13 @@
+from . import Client
+from bson import Document
+from bson import Int32
+from bson import String
+from string import pretty
+
+func main():
+    client = Client()
+    client.connect()
+    document = Document()
+    document.elements.append(("listDatabases", Int32(1)))
+    document.elements.append(("$db", String("admin")))
+    print(pretty(str(client.run_command(document))))
