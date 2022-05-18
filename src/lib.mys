@@ -83,19 +83,14 @@ class Client:
 
         return self.run_command(document)
 
-    func insert(self, database: string, collection: string, documents: [Document]):
+    func insert(self, database: string, collection: string, documents: Array):
         """Insert given objects in given collection in given database.
 
         """
 
-        array = Array()
-
-        for document in documents:
-            array.append(document)
-
         document = Document([
             ("insert", String(collection)),
-            ("documents", array),
+            ("documents", documents),
             ("$db", String(database))
         ])
         self.run_command(document)

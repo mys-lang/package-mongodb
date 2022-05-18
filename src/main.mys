@@ -1,6 +1,7 @@
 from random.pseudo import randint
 from . import Client
 from bson import Document
+from bson import Array
 from bson import String
 from bson import Int64
 
@@ -15,7 +16,7 @@ func main():
 
     client.insert("test",
                   "inventory",
-                  [Document([("x", Int64(i64(randint(0, 1000))))])])
+                  Array([Document([("x", Int64(i64(randint(0, 1000))))])]))
 
     print("Documents:")
     filter = Document([("x", Document([("$gt", Int64(500))]))])
