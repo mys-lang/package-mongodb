@@ -1,11 +1,22 @@
 from . import Client
 from bson import Document
 from bson import String
-from string import pretty
 
 func main():
     client = Client()
     client.connect()
-    print(pretty(str(client.list_databases())))
+    print(client.list_databases())
     client.insert("test", "inventory", [Document([("x", String("y"))])])
-    print(pretty(str(client.find("test", "inventory"))))
+    batch = client.find("test", "inventory")
+
+    for document in batch.get("cursor").get("firstBatch").get_array():
+        print(document)
+
+    cursor_id = batch.get("cursor").get("id")
+
+    while cursor_id.get_int64() != 0:
+        batch = client.get_more("test", "inventory", cursor_id)
+        cursor_id = batch.get("cursor").get("id")
+
+        for document in batch.get("cursor").get("nextBatch").get_array():
+            print(document)
