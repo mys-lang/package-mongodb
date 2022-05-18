@@ -1,13 +1,25 @@
+from random.pseudo import randint
 from . import Client
 from bson import Document
 from bson import String
+from bson import Int64
 
 func main():
     client = Client()
     client.connect()
-    print(client.list_databases())
-    client.insert("test", "inventory", [Document([("x", String("y"))])])
-    batch = client.find("test", "inventory")
+
+    print("Databases:")
+
+    for database in client.list_databases().get("databases").get_array():
+        print(database)
+
+    client.insert("test",
+                  "inventory",
+                  [Document([("x", Int64(i64(randint(0, 1000))))])])
+
+    print("Documents:")
+    filter = Document([("x", Document([("$gt", Int64(500))]))])
+    batch = client.find("test", "inventory", filter)
 
     for document in batch.get("cursor").get("firstBatch").get_array():
         print(document)

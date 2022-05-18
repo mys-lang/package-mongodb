@@ -1,9 +1,10 @@
 [package]
 name = "mongodb"
-version = "0.7.0"
+version = "0.8.0"
 authors = ["Erik Moqvist <erik.moqvist@gmail.com>"]
 description = "A MongoDB client."
 
 [dependencies]
 net = "latest"
 bson = "latest"
+random = "latest"

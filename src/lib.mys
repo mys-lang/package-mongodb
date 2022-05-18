@@ -100,13 +100,18 @@ class Client:
         ])
         self.run_command(document)
 
-    func find(self, database: string, collection: string) -> Document:
+    func find(self,
+              database: string,
+              collection: string,
+              filter: Document = Document()) -> Document:
         """Find objects in given collection in given database.
 
         """
 
         document = Document([
             ("find", String(collection)),
+            ("filter", filter),
+            ("batchSize", Int64(100)),
             ("$db", String(database))
         ])
 
@@ -121,6 +126,7 @@ class Client:
 
         document = Document([
             ("getMore", cursor_id),
+            ("batchSize", Int64(100)),
             ("collection", String(collection)),
             ("$db", String(database))
         ])
