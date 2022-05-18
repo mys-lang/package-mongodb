@@ -47,31 +47,6 @@ class Client:
 
         self._client.disconnect()
 
-    func run_command(self, command: Document) -> Document:
-        """Run given command and returns its response.
-
-        """
-
-        encoded = bson_encode(command)
-        header = bytes(21)
-        _pack_u32(header, 0, u32(len(header) + len(encoded)))
-        _pack_u32(header, 4, 1)
-        _pack_u32(header, 8, 0)
-        _pack_u32(header, 12, 2013)
-        _pack_u32(header, 16, 0)
-        header[20] = 0
-        self._client.write(header)
-        self._client.write(encoded)
-        self._client.read_into(header, 0, len(header))
-        length = u64(_unpack_u32(header, 0))
-
-        if _unpack_u32(header, 12) != 2013:
-            raise MongodbError("Unsupported message type.")
-
-        response = self._client.read(length - len(header))
-
-        return bson_decode(response)
-
     func list_databases(self) -> [string]:
         """List all databases.
 
@@ -155,3 +130,28 @@ class Client:
         ])
 
         return self.run_command(document)
+
+    func run_command(self, command: Document) -> Document:
+        """Run given command and returns its response.
+
+        """
+
+        encoded = bson_encode(command)
+        header = bytes(21)
+        _pack_u32(header, 0, u32(len(header) + len(encoded)))
+        _pack_u32(header, 4, 1)
+        _pack_u32(header, 8, 0)
+        _pack_u32(header, 12, 2013)
+        _pack_u32(header, 16, 0)
+        header[20] = 0
+        self._client.write(header)
+        self._client.write(encoded)
+        self._client.read_into(header, 0, len(header))
+        length = u64(_unpack_u32(header, 0))
+
+        if _unpack_u32(header, 12) != 2013:
+            raise MongodbError("Unsupported message type.")
+
+        response = self._client.read(length - len(header))
+
+        return bson_decode(response)
