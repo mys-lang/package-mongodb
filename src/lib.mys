@@ -122,7 +122,8 @@ class Client:
     func find(self,
               database: string,
               collection: string,
-              filter: Document = Document()) -> Document:
+              filter: Document = Document(),
+              sort: Document = Document()) -> Document:
         """Find documents in given collection in given database matching given
         filter.
 
@@ -131,6 +132,7 @@ class Client:
         document = Document([
             ("find", String(collection)),
             ("filter", filter),
+            ("sort", sort),
             ("batchSize", Int64(100)),
             ("$db", String(database))
         ])

@@ -4,8 +4,14 @@ from bson import Int64
 from bson import String
 from random.pseudo import randint
 from . import Client
+from argparse import Parser
 
-func main():
+func main(argv: [string]):
+    parser = Parser()
+    parser.add_option("--limit", default="500")
+    args = parser.parse(argv)
+    limit = i64(args.value_of("--limit"))
+
     client = Client()
     client.connect()
 
@@ -23,8 +29,9 @@ func main():
                   Array([Document([("x", Int64(i64(randint(0, 1000))))])]))
 
     print("Documents:")
-    filter = Document([("x", Document([("$gt", Int64(500))]))])
-    batch = client.find("test", "inventory", filter)
+    filter = Document([("x", Document([("$gt", Int64(limit))]))])
+    sort = Document([("x", Int64(1))])
+    batch = client.find("test", "inventory", filter, sort)
 
     for document in batch.get("cursor").get("firstBatch").get_array():
         print(document)
