@@ -1,10 +1,11 @@
+from bson import Array
+from bson import Boolean
 from bson import Document
 from bson import Int32
 from bson import Int64
 from bson import String
-from bson import Array
-from bson import encode as bson_encode
 from bson import decode as bson_decode
+from bson import encode as bson_encode
 from net.tcp.client import Client as TcpClient
 
 class MongodbError(Error):
@@ -71,17 +72,40 @@ class Client:
 
         return bson_decode(response)
 
-    func list_databases(self) -> Document:
+    func list_databases(self) -> [string]:
         """List all databases.
 
         """
 
         document = Document([
             ("listDatabases", Int32(1)),
+            ("nameOnly", Boolean(True)),
             ("$db", String("admin"))
         ])
 
-        return self.run_command(document)
+        return [
+            element.get("name").get_string()
+            for element in self.run_command(document).get("databases").get_array()
+        ]
+
+    func list_collections(self, database: string) -> [string]:
+        """List all collections in given database.
+
+        """
+
+        document = Document([
+            ("listCollections", Int32(1)),
+            ("nameOnly", Boolean(True)),
+            ("$db", String(database))
+        ])
+
+        return [
+            element.get("name").get_string()
+            for element in (self
+                            .run_command(document)
+                            .get("cursor")
+                            .get("firstBatch").get_array())
+        ]
 
     func insert(self, database: string, collection: string, documents: Array):
         """Insert given documents in given collection in given database.

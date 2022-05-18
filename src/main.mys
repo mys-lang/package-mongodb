@@ -1,9 +1,9 @@
+from bson import Array
+from bson import Document
+from bson import Int64
+from bson import String
 from random.pseudo import randint
 from . import Client
-from bson import Document
-from bson import Array
-from bson import String
-from bson import Int64
 
 func main():
     client = Client()
@@ -11,8 +11,12 @@ func main():
 
     print("Databases:")
 
-    for database in client.list_databases().get("databases").get_array():
-        print(database)
+    for database in client.list_databases():
+        print(" ", database)
+        print("   ", "Collections:")
+
+        for collection in client.list_collections(database):
+            print("     ", collection)
 
     client.insert("test",
                   "inventory",
