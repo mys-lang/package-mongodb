@@ -1,17 +1,11 @@
 from . import Client
 from bson import Document
-from bson import Int32
 from bson import String
 from string import pretty
 
 func main():
     client = Client()
     client.connect()
-    document = Document()
-    document.elements.append(("listDatabases", Int32(1)))
-    document.elements.append(("$db", String("admin")))
-    print(pretty(str(client.run_command(document))))
-    document = Document()
-    document.elements.append(("find", String("inventory")))
-    document.elements.append(("$db", String("test")))
-    print(pretty(str(client.run_command(document))))
+    print(pretty(str(client.list_databases())))
+    client.insert("test", "inventory", [Document([("x", String("y"))])])
+    print(pretty(str(client.find("test", "inventory"))))

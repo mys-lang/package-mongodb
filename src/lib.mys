@@ -1,4 +1,7 @@
 from bson import Document
+from bson import Int32
+from bson import String
+from bson import Array
 from bson import encode as bson_encode
 from bson import decode as bson_decode
 from net.tcp.client import Client as TcpClient
@@ -18,15 +21,27 @@ func _unpack_u32(data: bytes, offset: i64) -> u32:
             | (u32(data[offset + 3]) << 24))
 
 class Client:
+    """A MongoDB client.
+
+    """
+
     _client: TcpClient
 
     func __init__(self):
         self._client = TcpClient()
 
     func connect(self, host: string = "127.0.0.1", port: u32 = 27017):
+        """Connect to given server.
+
+        """
+
         self._client.connect(host, port)
 
     func disconnect(self):
+        """Disconnect from the server.
+
+        """
+
         self._client.disconnect()
 
     func run_command(self, command: Document) -> Document:
@@ -49,3 +64,44 @@ class Client:
         response = self._client.read(length - len(header))
 
         return bson_decode(response)
+
+    func list_databases(self) -> Document:
+        """List all databases.
+
+        """
+
+        document = Document([
+            ("listDatabases", Int32(1)),
+            ("$db", String("admin"))
+        ])
+
+        return self.run_command(document)
+
+    func insert(self, database: string, collection: string, documents: [Document]):
+        """Insert given objects in given collection in given database.
+
+        """
+
+        array = Array()
+
+        for document in documents:
+            array.append(document)
+
+        document = Document([
+            ("insert", String(collection)),
+            ("documents", array),
+            ("$db", String(database))
+        ])
+        self.run_command(document)
+
+    func find(self, database: string, collection: string) -> Document:
+        """Find objects in given collection in given database.
+
+        """
+
+        document = Document([
+            ("find", String(collection)),
+            ("$db", String(database))
+        ])
+
+        return self.run_command(document)
