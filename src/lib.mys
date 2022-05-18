@@ -84,7 +84,7 @@ class Client:
         return self.run_command(document)
 
     func insert(self, database: string, collection: string, documents: Array):
-        """Insert given objects in given collection in given database.
+        """Insert given documents in given collection in given database.
 
         """
 
@@ -99,7 +99,8 @@ class Client:
               database: string,
               collection: string,
               filter: Document = Document()) -> Document:
-        """Find objects in given collection in given database.
+        """Find documents in given collection in given database matching given
+        filter.
 
         """
 
@@ -115,7 +116,8 @@ class Client:
     func get_more(self, database: string,
                   collection: string,
                   cursor_id: Int64) -> Document:
-        """Find more objects in given collection in given database.
+        """Get documents at given cursor id in given collection in given
+        database starting.
 
         """
 
