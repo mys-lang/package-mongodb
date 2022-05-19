@@ -1,6 +1,7 @@
 from argparse import Parser
 from bson import Array
 from bson import Document
+from bson import Int32
 from bson import Int64
 from bson import String
 from random.pseudo import randint
@@ -26,12 +27,19 @@ func main(argv: [string]):
 
     client.insert("test",
                   "inventory",
-                  Array([Document([("x", Int64(i64(randint(0, 1000))))])]))
+                  Array([
+                      Document([
+                          ("x", Int64(i64(randint(0, 1000)))),
+                          ("y", Int64(i64(randint(0, 1000)))),
+                          ("z", Int64(i64(randint(0, 1000))))
+                      ])
+                  ]))
 
     print("Documents:")
-    filter = Document([("x", Document([("$gt", Int64(limit))]))])
-    sort = Document([("x", Int64(1))])
-    batch = client.find("test", "inventory", filter, sort)
+    filter = Document([("x", Document([("$gte", Int64(limit))]))])
+    sort = Document([("x", Int32(1))])
+    projection = Document([("_id", Int32(0)), ("x", Int32(1)), ("z", Int32(1))])
+    batch = client.find("test", "inventory", filter, sort, projection)
 
     for document in batch.get("cursor").get("firstBatch").get_array():
         print(document)

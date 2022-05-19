@@ -97,8 +97,9 @@ class Client:
     func find(self,
               database: string,
               collection: string,
-              filter: Document = Document(),
-              sort: Document = Document()) -> Document:
+              filter: Document = None,
+              sort: Document = None,
+              projection: Document = None) -> Document:
         """Find documents in given collection in given database matching given
         filter.
 
@@ -106,15 +107,23 @@ class Client:
 
         document = Document([
             ("find", String(collection)),
-            ("filter", filter),
-            ("sort", sort),
             ("batchSize", Int64(100)),
             ("$db", String(database))
         ])
 
+        if filter is not None:
+            document.elements.append(("filter", filter))
+
+        if sort is not None:
+            document.elements.append(("sort", sort))
+
+        if projection is not None:
+            document.elements.append(("projection", projection))
+
         return self.run_command(document)
 
-    func get_more(self, database: string,
+    func get_more(self,
+                  database: string,
                   collection: string,
                   cursor_id: Int64) -> Document:
         """Get documents at given cursor id in given collection in given
@@ -146,12 +155,19 @@ class Client:
         header[20] = 0
         self._client.write(header)
         self._client.write(encoded)
-        self._client.read_into(header, 0, len(header))
+
+        if self._client.read_into(header, 0, len(header)) != len(header):
+            raise MongodbError("Connection closed.")
+
         length = u64(_unpack_u32(header, 0))
 
         if _unpack_u32(header, 12) != 2013:
             raise MongodbError("Unsupported message type.")
 
-        response = self._client.read(length - len(header))
+        length -= len(header)
+        response = self._client.read(length)
+
+        if len(response) != length:
+            raise MongodbError("Connection closed.")
 
         return bson_decode(response)
