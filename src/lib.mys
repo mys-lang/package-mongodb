@@ -1,5 +1,6 @@
 from bson import Array
 from bson import Boolean
+from bson import BsonError
 from bson import Document
 from bson import Int32
 from bson import Int64
@@ -81,6 +82,17 @@ class Client:
                             .get("cursor")
                             .get("firstBatch").get_array())
         ]
+
+    func drop(self, database: string, collection: string):
+        """Drop given collection in given database.
+
+        """
+
+        document = Document([
+            ("drop", String(collection)),
+            ("$db", String(database))
+        ])
+        self.run_command(document)
 
     func insert(self, database: string, collection: string, documents: Array):
         """Insert given documents in given collection in given database.
@@ -204,3 +216,48 @@ class Client:
             raise MongodbError(f"Command error: {message} ({code_name}({code}))")
 
         return response
+
+@test
+func test_basic():
+    database = "mys-mongodb-test"
+    collection = "foo"
+
+    client = Client()
+    client.connect()
+
+    try:
+        client.drop(database, collection)
+    except MongodbError:
+        pass
+
+    try:
+        client.drop(database, collection)
+        assert False
+    except MongodbError as error:
+        assert "ns not found" in error.message
+
+    client.insert(database,
+                  collection,
+                  Array([
+                      Document([("x", Boolean(True))]),
+                      Document([("x", Boolean(False))])
+                  ]))
+    assert database in client.list_databases()
+    assert collection in client.list_collections(database)
+    assert len(client.find_many(database, collection)) == 2
+    filter = Document([("x", Document([("$eq", Boolean(False))]))])
+    projection = Document([("_id", Int32(0))])
+    documents = client.find_many(database,
+                                 collection,
+                                 filter=filter,
+                                 projection=projection)
+    assert len(documents) == 1
+    assert not documents[0].get("x").get_boolean()
+
+    try:
+        documents[0].get("_id")
+        assert False
+    except BsonError:
+        pass
+
+    client.disconnect()
