@@ -165,9 +165,18 @@ class Client:
             raise MongodbError("Unsupported message type.")
 
         length -= len(header)
-        response = self._client.read(length)
+        data = self._client.read(length)
 
-        if len(response) != length:
+        if len(data) != length:
             raise MongodbError("Connection closed.")
 
-        return bson_decode(response)
+        response = bson_decode(data)
+
+        if response.get("ok").get_double() == 0.0:
+            message = response.get("errmsg").get_string()
+            code = response.get("code").get_int32()
+            code_name = response.get("codeName").get_string()
+
+            raise MongodbError(f"Command error: {message} ({code_name}({code}))")
+
+        return response
