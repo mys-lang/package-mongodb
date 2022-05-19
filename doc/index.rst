@@ -22,7 +22,7 @@ List databases
    func main():
        client = Client()
        client.connect()
-       print(database in client.list_databases())
+       print(client.list_databases())
        client.disconnect()
 
 List collections
@@ -35,7 +35,7 @@ List collections
    func main():
        client = Client()
        client.connect()
-       print(collection in client.list_collections("database"))
+       print(client.list_collections("database"))
        client.disconnect()
 
 Drop collection
