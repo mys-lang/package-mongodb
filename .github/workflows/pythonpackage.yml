@@ -19,7 +19,7 @@ jobs:
         pip install mys
     - name: Test
       run: |
-        mys test
+        mys build
 
   release:
     needs: [linux]
