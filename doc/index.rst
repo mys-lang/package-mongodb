@@ -15,20 +15,28 @@ Examples
 List databases
 --------------
 
-func main():
-    client = Client()
-    client.connect()
-    print(database in client.list_databases())
-    client.disconnect()
+.. code-block:: mys
+
+   from mongodb import Client
+
+   func main():
+       client = Client()
+       client.connect()
+       print(database in client.list_databases())
+       client.disconnect()
 
 List collections
 ----------------
 
-func main():
-    client = Client()
-    client.connect()
-    print(collection in client.list_collections(database))
-    client.disconnect()
+.. code-block:: mys
+
+   from mongodb import Client
+
+   func main():
+       client = Client()
+       client.connect()
+       print(collection in client.list_collections("database"))
+       client.disconnect()
 
 Drop collection
 ---------------
