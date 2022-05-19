@@ -9,6 +9,109 @@ MongoDB client in the `Mys programming language`_.
 
 Project: https://github.com/mys-lang/package-mongodb
 
+Examples
+========
+
+List databases
+--------------
+
+func main():
+    client = Client()
+    client.connect()
+    print(database in client.list_databases())
+    client.disconnect()
+
+List collections
+----------------
+
+func main():
+    client = Client()
+    client.connect()
+    print(collection in client.list_collections(database))
+    client.disconnect()
+
+Drop collection
+---------------
+
+.. code-block:: mys
+
+   from mongodb import Client
+
+   func main():
+       client = Client()
+       client.connect()
+       client.drop("database", "collection")
+       client.disconnect()
+
+Insert documents
+----------------
+
+.. code-block:: mys
+
+   from bson import Array
+   from bson import Boolean
+   from bson import Document
+   from mongodb import Client
+
+   func main():
+       client = Client()
+       client.connect()
+       client.insert("database",
+                     "collection",
+                     Array([
+                         Document([("x", Boolean(True))]),
+                         Document([("x", Boolean(False))])
+                     ]))
+       client.disconnect()
+
+Find documents
+--------------
+
+.. code-block:: mys
+
+   from bson import Boolean
+   from bson import Document
+   from mongodb import Client
+
+   func main():
+       client = Client()
+       client.connect()
+       filter = Document([("x", Document([("$eq", Boolean(False))]))])
+       projection = Document([("_id", Int32(0))])
+       documents = client.find_many("database",
+                                    "collection",
+                                    filter=filter,
+                                    projection=projection)
+
+       for document in documents:
+           print(document.get("x").get_boolean())
+
+       client.disconnect()
+
+Delete documents
+----------------
+
+.. code-block:: mys
+
+   from bson import Array
+   from bson import Boolean
+   from bson import Document
+   from bson import Int32
+   from mongodb import Client
+
+   func main():
+       client = Client()
+       client.connect()
+       client.delete("database",
+                     "collection",
+                     Array([
+                         Document([
+                             ("q", Document([("x", Boolean(True))])),
+                             ("limit", Int32(0))
+                         ])
+                     ]))
+       client.disconnect()
+
 API
 ===
 
