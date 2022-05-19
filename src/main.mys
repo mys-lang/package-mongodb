@@ -39,16 +39,6 @@ func main(argv: [string]):
     filter = Document([("x", Document([("$gte", Int64(limit))]))])
     sort = Document([("x", Int32(1))])
     projection = Document([("_id", Int32(0)), ("x", Int32(1)), ("z", Int32(1))])
-    batch = client.find("test", "inventory", filter, sort, projection)
 
-    for document in batch.get("cursor").get("firstBatch").get_array():
+    for document in client.find_many("test", "inventory", filter, sort, projection):
         print(document)
-
-    cursor_id = batch.get("cursor").get("id")
-
-    while cursor_id.get_int64() != 0:
-        batch = client.get_more("test", "inventory", cursor_id)
-        cursor_id = batch.get("cursor").get("id")
-
-        for document in batch.get("cursor").get("nextBatch").get_array():
-            print(document)
