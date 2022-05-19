@@ -248,24 +248,26 @@ func test_basic():
     except MongodbError as error:
         assert "ns not found" in error.message
 
-    client.insert(database,
-                  collection,
-                  Array([
-                      Document([("x", Boolean(True))]),
-                      Document([("x", Boolean(False))])
-                  ]))
+    # More than 100 documents (batch size).
+    for _ in range(55):
+        client.insert(database,
+                    collection,
+                    Array([
+                        Document([("x", Boolean(True))]),
+                        Document([("x", Boolean(False))])
+                    ]))
 
     assert database in client.list_databases()
     assert collection in client.list_collections(database)
 
-    assert len(client.find_many(database, collection)) == 2
+    assert len(client.find_many(database, collection)) == 110
     filter = Document([("x", Document([("$eq", Boolean(False))]))])
     projection = Document([("_id", Int32(0))])
     documents = client.find_many(database,
                                  collection,
                                  filter=filter,
                                  projection=projection)
-    assert len(documents) == 1
+    assert len(documents) == 55
     assert not documents[0].get("x").get_boolean()
 
     try:
@@ -274,7 +276,7 @@ func test_basic():
     except BsonError:
         pass
 
-    assert len(client.find_many(database, collection)) == 2
+    assert len(client.find_many(database, collection)) == 110
     client.delete(database,
                   collection,
                   Array([
@@ -283,6 +285,6 @@ func test_basic():
                           ("limit", Int32(0))
                       ])
                   ]))
-    assert len(client.find_many(database, collection)) == 1
+    assert len(client.find_many(database, collection)) == 55
 
     client.disconnect()
