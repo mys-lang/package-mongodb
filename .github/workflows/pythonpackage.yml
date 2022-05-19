@@ -17,9 +17,13 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install mys
+    - name: Start MongoDB
+      uses: supercharge/mongodb-github-action@1.7.0
+      with:
+        mongodb-version: '5.0'
     - name: Test
       run: |
-        mys build
+        mys test
 
   release:
     needs: [linux]
