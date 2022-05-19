@@ -106,6 +106,18 @@ class Client:
         ])
         self.run_command(document)
 
+    func delete(self, database: string, collection: string, deletes: Array):
+        """Delete documents in given collection in given database.
+
+        """
+
+        document = Document([
+            ("delete", String(collection)),
+            ("deletes", deletes),
+            ("$db", String(database))
+        ])
+        self.run_command(document)
+
     func find_many(self,
                    database: string,
                    collection: string,
@@ -242,8 +254,10 @@ func test_basic():
                       Document([("x", Boolean(True))]),
                       Document([("x", Boolean(False))])
                   ]))
+
     assert database in client.list_databases()
     assert collection in client.list_collections(database)
+
     assert len(client.find_many(database, collection)) == 2
     filter = Document([("x", Document([("$eq", Boolean(False))]))])
     projection = Document([("_id", Int32(0))])
@@ -259,5 +273,16 @@ func test_basic():
         assert False
     except BsonError:
         pass
+
+    assert len(client.find_many(database, collection)) == 2
+    client.delete(database,
+                  collection,
+                  Array([
+                      Document([
+                          ("q", Document([("x", Boolean(True))])),
+                          ("limit", Int32(0))
+                      ])
+                  ]))
+    assert len(client.find_many(database, collection)) == 1
 
     client.disconnect()
