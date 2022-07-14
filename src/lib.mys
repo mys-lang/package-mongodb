@@ -229,8 +229,7 @@ class Client:
 
         return response
 
-@test
-func test_basic():
+test basic():
     database = "mys-mongodb-test"
     collection = "foo"
 
