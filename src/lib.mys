@@ -195,7 +195,7 @@ class Client:
 
         encoded = bson_encode(command)
         header = bytes(21)
-        _pack_u32(header, 0, u32(len(header) + len(encoded)))
+        _pack_u32(header, 0, u32(header.length() + encoded.length()))
         _pack_u32(header, 4, 1)
         _pack_u32(header, 8, 0)
         _pack_u32(header, 12, 2013)
@@ -204,18 +204,18 @@ class Client:
         self._client.write(header)
         self._client.write(encoded)
 
-        if self._client.read_into(header, 0, len(header)) != len(header):
+        if self._client.read_into(header, 0, header.length()) != header.length():
             raise MongodbError("Connection closed.")
 
-        length = u64(_unpack_u32(header, 0))
+        length = i64(_unpack_u32(header, 0))
 
         if _unpack_u32(header, 12) != 2013:
             raise MongodbError("Unsupported message type.")
 
-        length -= len(header)
+        length -= header.length()
         data = self._client.read(length)
 
-        if len(data) != length:
+        if data.length() != length:
             raise MongodbError("Connection closed.")
 
         response = bson_decode(data)
@@ -259,14 +259,14 @@ test basic():
     assert database in client.list_databases()
     assert collection in client.list_collections(database)
 
-    assert len(client.find_many(database, collection)) == 110
+    assert client.find_many(database, collection).length() == 110
     filter = Document([("x", Document([("$eq", Boolean(False))]))])
     projection = Document([("_id", Int32(0))])
     documents = client.find_many(database,
                                  collection,
                                  filter=filter,
                                  projection=projection)
-    assert len(documents) == 55
+    assert documents.length() == 55
     assert not documents[0].get("x").get_boolean()
 
     try:
@@ -275,7 +275,7 @@ test basic():
     except BsonError:
         pass
 
-    assert len(client.find_many(database, collection)) == 110
+    assert client.find_many(database, collection).length() == 110
     client.delete(database,
                   collection,
                   Array([
@@ -284,6 +284,6 @@ test basic():
                           ("limit", Int32(0))
                       ])
                   ]))
-    assert len(client.find_many(database, collection)) == 55
+    assert client.find_many(database, collection).length() == 55
 
     client.disconnect()
