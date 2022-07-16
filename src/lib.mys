@@ -60,8 +60,8 @@ class Client:
         ])
 
         return [
-            element.get("name").get_string()
-            for element in self.run_command(document).get("databases").get_array()
+            element.get("name").string()
+            for element in self.run_command(document).get("databases").array()
         ]
 
     func list_collections(self, database: string) -> [string]:
@@ -76,11 +76,11 @@ class Client:
         ])
 
         return [
-            element.get("name").get_string()
+            element.get("name").string()
             for element in (self
                             .run_command(document)
                             .get("cursor")
-                            .get("firstBatch").get_array())
+                            .get("firstBatch").array())
         ]
 
     func drop(self, database: string, collection: string):
@@ -131,13 +131,13 @@ class Client:
 
         batch = self.find(database, collection, filter, sort, projection)
         documents: [Document] = []
-        documents.extend(batch.get("cursor").get("firstBatch").get_array())
+        documents.extend(batch.get("cursor").get("firstBatch").array())
         cursor_id = batch.get("cursor").get("id")
 
-        while cursor_id.get_int64() != 0:
+        while cursor_id.int64() != 0:
             batch = self.get_more(database, collection, cursor_id)
             cursor_id = batch.get("cursor").get("id")
-            documents.extend(batch.get("cursor").get("nextBatch").get_array())
+            documents.extend(batch.get("cursor").get("nextBatch").array())
 
         return documents
 
@@ -220,10 +220,10 @@ class Client:
 
         response = bson_decode(data)
 
-        if response.get("ok").get_double() == 0.0:
-            message = response.get("errmsg").get_string()
-            code = response.get("code").get_int32()
-            code_name = response.get("codeName").get_string()
+        if response.get("ok").double() == 0.0:
+            message = response.get("errmsg").string()
+            code = response.get("code").int32()
+            code_name = response.get("codeName").string()
 
             raise MongodbError(f"Command error: {message} ({code_name}({code}))")
 
@@ -267,7 +267,7 @@ test basic():
                                  filter=filter,
                                  projection=projection)
     assert documents.length() == 55
-    assert not documents[0].get("x").get_boolean()
+    assert not documents[0].get("x").boolean()
 
     try:
         documents[0].get("_id")
