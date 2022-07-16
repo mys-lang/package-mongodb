@@ -34,7 +34,7 @@ class Client:
     func __init__(self):
         self._client = TcpClient()
 
-    func connect(self, host: string = "127.0.0.1", port: u32 = 27017):
+    func connect(self, host: string = "127.0.0.1", port: i64 = 27017):
         """Connect to given server.
 
         """
