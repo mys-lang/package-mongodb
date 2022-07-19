@@ -121,9 +121,9 @@ class Client:
     func find_many(self,
                    database: string,
                    collection: string,
-                   filter: Document = None,
-                   sort: Document = None,
-                   projection: Document = None) -> [Document]:
+                   filter: Document? = None,
+                   sort: Document? = None,
+                   projection: Document? = None) -> [Document]:
         """Find documents in given collection in given database matching given
         filter.
 
@@ -144,9 +144,9 @@ class Client:
     func find(self,
               database: string,
               collection: string,
-              filter: Document = None,
-              sort: Document = None,
-              projection: Document = None) -> Document:
+              filter: Document? = None,
+              sort: Document? = None,
+              projection: Document? = None) -> Document:
         """Find first batch of documents in given collection in given database
         matching given filter.
 
